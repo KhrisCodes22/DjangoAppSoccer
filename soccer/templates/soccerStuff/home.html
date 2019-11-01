@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title> Welcome to soccerData!</title>
+  <h3>Schedule For Week {{week}}</h3>
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href = "{% static 'soccerStuff/homepagestyles.css'%}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.css"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.js"></script>
+<script>
+    $(document).ready( function () {
+     
+    $('table.display').DataTable({
+      "paging": false,
+      "info": false,
+      "searching" : false,
+      "order": [[4, "desc"]],
+  })
+
+
+  $('table.stats').DataTable({
+      "paging": false,
+      "info": false,
+      "searching" : false,
+      "order": [[2, "desc"]],
+  })
+
+    $('table.display td a').each(function()
+    {
+      var cellText = $(this).text();
+      $(this).text(cellText.replace("_", " "));
+    })
+    $('table.stats td a').each(function()
+    {
+      var cellText = $(this).text();
+      $(this).text(cellText.replace("_", " "));
+    })
+    $('table.schedule td a').each(function()
+    {
+      var newText = $(this).text();
+      console.log(newText);
+      $(this).text(newText.replace("_", " "));
+    })
+})
+//display the correct table to the user, based on what button they press
+function showTable(tableToShow)
+{
+  switch(correctTable = tableToShow){
+    case "all":
+      document.querySelector("#homeStatsTable").style.display = "none";
+      document.querySelector("#awayStatsTable").style.display = "none";
+      document.querySelector("#allStatsTable").style.display = "";
+      break;
+    case "home":
+      document.querySelector("#allStatsTable").style.display = "none";
+      document.querySelector("#awayStatsTable").style.display = "none";
+      document.querySelector("#homeStatsTable").style.display = "";
+      break;
+    case "away":
+      document.querySelector("#allStatsTable").style.display = "none";
+      document.querySelector("#homeStatsTable").style.display = "none";
+      document.querySelector("#awayStatsTable").style.display = "";
+      break;
+  }
+  return;
+}
+</script>
+</head>
+<body>
+<header id = "header"> 
+<a href="http://localhost:8000/week/{{prevWeek}}" class="button">View prev weeks games!</a>
+<a href="http://localhost:8000/week/{{nextWeek}}" class="button">View next weeks games!</a>
+<p> </p>
+<div class = 'bodyinfo'>
+  {%if numGames == 0 %}
+    <div class = "calendar-date-container">
+      <div class = "calendar-games">
+        <h5>There are no games this week! Click the buttons to change weeks</h5>
+      </div>
+    </div>
+  {%else%}
+  <table class = "schedule">
+    <thead>
+      <tr>
+        <th>Home</th>
+        <th>Game Date/Final Score</th>
+        <th>Away</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%for game in games%}
+      <tr>
+        <td>
+          <a class = "text" href = "http://localhost:8000/team{{game.home_team_name}}"> {{game.home_team_name}}</a>
+        </td>
+        {%if game.isCompleted %}
+        <td>
+          <a class = "text" href= "http://localhost:8000/game/{{game.id}}"> {{game.home_goals}}:{{game.away_goals}}</a>
+        </td>
+        <td>
+          <a class = "text" href = "http://localhost:8000/team/{{game.away_team_name}}"> {{game.away_team_name}}</a>
+        </td>
+        {%else%}
+        <td>
+          <a class = "text" href = "http://localhost:8000/game/{{game.id}}"> {{game.game_date}}</a>
+        </td>
+        <td>
+          <a class = "text" href = "http://localhost:8000/team/{{game.away_team_name}}"> {{game.away_team_name}}</a>
+        </td>
+        {%endif%}
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+  {%endif%}
+</div>
+<p> </p>
+<button type = "button" id = "showAll" onclick = "showTable('all');">All</button>
+<button type = "button" id = "showHome" onclick = "showTable('home');">Home</button>
+<button type = "button" id = "showAway" onclick = "showTable('away');">Away</button>
+<p></p>
+<div class = "standings-tables">
+  <table id = "allStatsTable" class="display">
+  <thead>
+    <tr>
+        <th>Team Name</th>
+        <th>Wins</th>
+        <th>Draws</th>
+        <th>Losses</th>
+        <th>Points</th>
+        <th>GF</th>
+        <th>GA</th>
+        <th>GD</th>
+    </tr>
+  </thead>
+  <tbody>
+    {%for team in teams%}
+    <tr>
+        <td id = "teamName"> 
+        <a  class = "text" href = "http://localhost:8000/team/{{team.name}}"> {{team.name}}</a></td>
+        <td > {{team.Wins}} </td> 
+        <td > {{team.Draws}} </td>
+        <td> {{team.Losses}}</td>
+        <td> {{team.Points}}</td>
+        <td> {{team.GoalsFor}}</td>
+        <td> {{team.GoalsAgainst}}</td>
+        <td> {{team.GoalDifference}}</td>
+      </tr>
+    {%endfor%}
+      
+  </tbody>
+  </table>
+
+  <table id = "homeStatsTable" style = "display:none" class="display">
+  <thead>
+    <tr>
+        <th>Team Name</th>
+        <th>Wins</th>
+        <th>Draws</th>
+        <th>Losses</th>
+        <th>Points</th>
+        <th>GF</th>
+        <th>GA</th>
+        <th>GD</th>
+    </tr>
+  </thead>
+  <tbody>
+    {%for team in teams%}
+    <tr>
+        <td id = "teamName"> 
+        <a class = "text" href = "http://localhost:8000/team/{{team.name}}"> {{team.name}}</a></td>
+        <td > {{team.homeWins}} </td> 
+        <td > {{team.homeDraws}} </td>
+        <td> {{team.homeLosses}}</td>
+        <td> {{team.homePoints}}</td>
+        <td> {{team.homeGF}}</td>
+        <td> {{team.homeGA}}</td>
+        <td> {{team.homeGD}}</td>
+      </tr>
+    {%endfor%}
+      
+  </tbody>
+  </table>
+  <table id = "awayStatsTable" style = "display:none" class = "display">
+  <thead>
+    <tr>
+        <th>Team Name</th>
+        <th>Wins</th>
+        <th>Draws</th>
+        <th>Losses</th>
+        <th>Points</th>
+        <th>GF</th>
+        <th>GA</th>
+        <th>GD</th>
+    </tr>
+  </thead>
+  <tbody>
+    {%for team in teams%}
+    <tr>
+        <td id = "teamName"> 
+        <a class = "text" href = "http://localhost:8000/team/{{team.name}}"> {{team.name}}</a></td>
+        <td > {{team.awayWins}} </td> 
+        <td > {{team.awayDraws}} </td>
+        <td> {{team.awayLosses}}</td>
+        <td> {{team.awayPoints}}</td>
+        <td> {{team.awayGF}}</td>
+        <td> {{team.awayGA}}</td>
+        <td> {{team.awayGD}}</td>
+      </tr>
+    {%endfor%}
+      
+  </tbody>
+  </table>
+</div>
+
+<p></p>
+<div class = "playerstattables">
+  <table id = "scorerTable" class = "stats">
+  <thead>
+    <tr>
+        <th>Player Name</th>
+        <th>Team</th>
+        <th>Goals</th>
+        <th>Assists</th>
+        <th>Games Played</th>
+        <th>Yellows</th>
+        <th>Reds</th>
+        <th>Position</th>
+    </tr>
+  </thead>
+  <tbody>
+    {%for player in topScorers%}
+    <tr>
+        <td> {{player.playerName}}</a></td>
+        <td id = "teamName"> 
+        <a  class = "text" href ="http://localhost:8000/team/{{player.team}}/">{{player.team}}</td> 
+        <td> {{player.goals}} </td> 
+        <td> {{player.assists}} </td>
+        <td> {{player.gamesPlayed}}</td>
+        <td> {{player.yellowCards}}</td>
+        <td> {{player.redCards}}</td>
+        <td> {{player.position}}</td>
+      </tr>
+    {%endfor%}
+  </tbody>
+  </table>
+</div>
+
+</body>
+
+</html>

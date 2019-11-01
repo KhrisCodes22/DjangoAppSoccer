@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<title>Information about this game</title>
+<head>
+{% load static %}
+<link rel="stylesheet" type="text/css" href = "{% static 'soccerStuff/gameStyle.css'%}">
+</head>
+<body>
+<header id = "header">
+    <div class = "header-wrapper">
+        <span class = "match-result">
+            <p>{{homeTeam}} {{gameString}} {{awayTeam}}</p>
+            
+        </span>
+        <nav class = "navigation">
+            <ul class = "h-inner">
+                <li>
+                    <a class = "link-icon" href = "http://localhost:8000/">Back to home</a>
+                </li>
+            </ul>
+    </div>
+</header>
+
+<h2> All Goals Scored </h2>
+<table id ="goals-table">
+    <thead>
+        <tr>
+            <th>{{homeTeam}}</th>
+            <th>{{awayTeam}}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%for goal in goals%}
+        {%if goal.team == game.home_team_name%}
+        <tr>
+            <td>{{goal.goalScorer}} : {{goal.minuteScored}}'</td>
+            <td></td>
+        </tr>
+        {%else%}
+        <tr>
+            <td></td>
+            <td>{{goal.goalScorer}} : {{goal.minuteScored}}'</td>
+        </tr>
+        {%endif%}
+        {%endfor%}
+    </tbody>
+</table>
+
+<h4>Final Score: {{game.home_goals}} - {{game.away_goals}}</h4>
+<h4>Game was played in {{location}}</h4>
+</body>
+</html>

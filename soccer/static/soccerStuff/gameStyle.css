@@ -1,0 +1,19 @@
+*{
+    background-color: rgb(82, 82, 82);
+    font-family: Arial;
+    color: pink;
+}
+h3{
+    display: inline;
+}
+p{
+    display: inline;
+}
+#goals-cointainer{
+    text-align: center;
+    display: flex;
+    justify-content: center; 
+}
+#away, #home{
+    display: inline-block;
+}
